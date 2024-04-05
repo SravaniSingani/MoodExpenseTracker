@@ -1,0 +1,77 @@
+﻿﻿@model MoodExpenseTracker.Models.ExpenseDto
+
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+<form action="/Expense/Create" method="POST">
+
+    <div>
+        <label>Name: </label><input type="text" name="ExpenseName" />
+    </div>
+    <div>
+        <label>Amount: </label><input type="text" name="Amount" />
+    </div>
+    <div>
+        <label>Date: </label><input type="datetime-local" name="ExpenseDate" />
+    </div>
+    <div>
+        <label>Description: </label><input type="text" name="Description" />
+    </div>
+    <div>
+        <label>Card: </label>
+        @Html.DropDownList("CardId", ViewBag.Card as SelectList, "-- Select Card --", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>Category: </label>
+        @Html.DropDownList("CategoryId", ViewBag.Category as SelectList, "-- Select Category --", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>Mood: </label>
+        @Html.DropDownList("MoodId", ViewBag.Mood as SelectList, "-- Select Mood --", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>Weather: </label>
+        @Html.DropDownList("WeatherId", ViewBag.Weather as SelectList, "-- Select Weather --", new { @class = "form-control" })
+    </div>
+    <div>
+        <input type="submit" value="Add Expense" />
+    </div>
+
+</form>
+
+<style>
+
+    label {
+        display: inline-block;
+    }
+
+    input {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.375rem;
+    }
+
+        input[type=submit] {
+            background-color: #2642de;
+            color: white;
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+</style>

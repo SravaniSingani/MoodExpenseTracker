@@ -1,0 +1,8 @@
+{
+  "ExpenseId": 3,
+  "ExpenseName": "Biryani",
+  "Amount": 25.05,
+  "ExpenseDate": "2024-1-2",
+  "CardId": 2,
+  "CategoryId": 2
+}

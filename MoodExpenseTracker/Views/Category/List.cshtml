@@ -1,0 +1,23 @@
+﻿﻿﻿@model IEnumerable<MoodExpenseTracker.Models.CategoryDto>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List of Categories</h2>
+
+<div style="margin-bottom:20px;">
+
+    <a href="/Category/New" class="btn btn-primary btn-sm active" role="button" aria-pressed="true">Add Category</a>
+</div>
+
+<div>
+    <ul class="list-group list-group-flush">
+        @foreach (MoodExpenseTracker.Models.CategoryDto Category in Model)
+        {
+
+            <li class="list-group-item"><a style="text-decoration: none; font-size:24px;" href="/Category/Details/@Category.CategoryId">@Category.CategoryName</a></li>
+
+        }
+    </ul>
+</div>

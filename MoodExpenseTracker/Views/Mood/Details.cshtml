@@ -1,0 +1,114 @@
+﻿﻿@model MoodExpenseTracker.Models.ViewModels.DetailsMood
+
+@{
+    ViewBag.Title = "Details";
+}
+
+@{
+    //Total Expenses
+    decimal totalAmountSpent = Model.RelatedExpensestoMood.Sum(e => e.Amount);
+}
+
+
+<h2>Mood Details</h2>
+<div style="margin-bottom:20px;">
+    <a href="/Mood/List" class="btn btn-primary" style="margin-bottom:20px;">Back</a>
+</div>
+
+
+<div>
+    <h4> Name: @Model.SelectedMood.MoodName </h4>
+</div>
+
+@if (Model.RelatedExpensestoMood.Any())
+{
+
+    <h6>All Expenses in @Model.SelectedMood.MoodName</h6>
+
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Expense Name</th>
+                    <th scope="col">Card Name</th>
+                    <th scope="col">Category Name</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Weather</th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+
+                @foreach (var expense in Model.RelatedExpensestoMood)
+                {
+
+                    <tr>
+                        <th scope="row"></th>
+                        <td><a href="/Expense/Details/@expense.ExpenseId">@expense.ExpenseName</a></td>
+                        <td><a href="/Card/Details/@expense.CardId">@expense.CardName</a></td>
+                        <td><a href="/Category/Details/@expense.CategoryId">@expense.CategoryName</a></td>
+                        <td>$@expense.Amount</td>
+                        <td> @expense.ExpenseDate</td>
+                        <td><a href="/Weather/Details/@expense.WeatherId">@expense.WeatherName</a></td>
+                        <td>
+                            <a href="/Expense/Edit/@expense.ExpenseId">Update</a>
+
+                        </td>
+                        <td>
+                            <a style="color:darkred;" href="/Expense/DeleteConfirm/@expense.ExpenseId">Delete</a>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+else
+{
+    <p>No expenses associated with the category.</p>
+}
+
+
+<div class="card">
+    <div class="card-body">
+        <h6> Total Amount Spent: $@totalAmountSpent </h6>
+    </div>
+</div>
+
+<div>
+    <form action="/Expense/New" method="get">
+        <button type="submit" class="btn btn-primary">Add Expense</button>
+    </form>
+</div>
+
+
+
+<style>
+    nav {
+        padding-bottom: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        text-align: center;
+        padding: 10px;
+    }
+
+        table.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    a {
+        text-decoration: none;
+    }
+
+    button {
+        margin: 10px;
+    }
+</style>

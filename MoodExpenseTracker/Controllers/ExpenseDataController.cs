@@ -42,6 +42,7 @@ namespace MoodExpenseTracker.Controllers
                 ExpenseName = e.ExpenseName,
                 Amount = e.Amount,
                 ExpenseDate = e.ExpenseDate,
+                Description = e.Description,
                 CardId = e.CardId,
                 CardName = e.Card.CardName,
                 CardType = e.Card.CardType,
@@ -56,6 +57,197 @@ namespace MoodExpenseTracker.Controllers
             }));
             return ExpenseDtos;
         }
+
+
+
+        /// <summary>
+        /// A list that returns all the Expenses for a selected Card ID
+        /// </summary>
+        /// <returns>
+        /// All expenses in the system associated with the card id
+        /// </returns>
+        /// <param name="id">
+        /// Represents the selected card id
+        /// </param>
+        ///<example>
+        /// GET: api/ExpenseData/ListExpensesforCard/2
+        /// CURL: curl https://localhost:44384/api/expensedata/listexpensesforcard/2
+        /// </example>
+
+
+        // List Expenses for Card
+        [HttpGet]
+        [Route("api/ExpenseData/ListExpensesforCard/{id}")]
+        public IEnumerable<ExpenseDto> ListExpensesforCard(int id)
+        {
+            List<Expense> Expenses = db.Expenses.Where(e => e.CardId == id).ToList();
+            List<ExpenseDto> ExpenseDtos = new List<ExpenseDto>();
+
+            Expenses.ForEach(e => ExpenseDtos.Add(new ExpenseDto()
+            {
+
+                ExpenseId = e.ExpenseId,
+                ExpenseName = e.ExpenseName,
+                Amount = e.Amount,
+                ExpenseDate = e.ExpenseDate,
+                Description = e.Description,
+                CardId = e.CardId,
+                CardName = e.Card.CardName,
+                CardType= e.Card.CardType,
+                CategoryId = e.CategoryId,
+                CategoryName = e.Category.CategoryName,
+                MoodId = e.MoodId,
+                MoodName = e.Mood.MoodName,
+                WeatherId = e.WeatherId,
+                WeatherName = e.Weather.WeatherName
+
+            }));
+            return ExpenseDtos;
+        }
+
+
+
+        /// <summary>
+        /// A list that returns all the Expenses for a selected Category ID
+        /// </summary>
+        /// <returns>
+        /// All expenses in the system associated with the category id
+        /// </returns>
+        /// <param name="id">
+        /// Represents the selected category id
+        /// </param>
+        ///<example>
+        /// GET: api/ExpenseData/ListExpensesforCategory/2
+        /// CURL: curl https://localhost:44384/api/expensedata/listexpensesforcategory/2
+        /// </example>
+
+
+        // List Expenses for Category
+        [HttpGet]
+        [Route("api/ExpenseData/ListExpensesforCategory/{id}")]
+        public IEnumerable<ExpenseDto> ListExpensesforCategory(int id)
+        {
+            List<Expense> Expenses = db.Expenses.Where(e => e.CategoryId == id).ToList();
+            List<ExpenseDto> ExpenseDtos = new List<ExpenseDto>();
+
+            Expenses.ForEach(e => ExpenseDtos.Add(new ExpenseDto()
+            {
+
+                ExpenseId = e.ExpenseId,
+                ExpenseName = e.ExpenseName,
+                Amount = e.Amount,
+                ExpenseDate = e.ExpenseDate,
+                Description = e.Description,
+                CardId = e.CardId,
+                CardName = e.Card.CardName,
+                CardType = e.Card.CardType,
+                CategoryId = e.CategoryId,
+                CategoryName = e.Category.CategoryName,
+                MoodId = e.MoodId,
+                MoodName = e.Mood.MoodName,
+                WeatherId = e.WeatherId,
+                WeatherName = e.Weather.WeatherName
+
+            }));
+            return ExpenseDtos;
+        }
+
+
+        /// <summary>
+        /// A list that returns all the Expenses for a selected Mood ID
+        /// </summary>
+        /// <returns>
+        /// All expenses in the system associated with the mood id
+        /// </returns>
+        /// <param name="id">
+        /// Represents the selected mood id
+        /// </param>
+        ///<example>
+        /// GET: api/ExpenseData/ListExpensesforMood/2
+        /// CURL: curl https://localhost:44307/api/expensedata/listexpensesformood/2
+        /// </example>
+
+
+        // List Expenses for Mood
+        [HttpGet]
+        [Route("api/ExpenseData/ListExpensesforMood/{id}")]
+        public IEnumerable<ExpenseDto> ListExpensesforMood(int id)
+        {
+            List<Expense> Expenses = db.Expenses.Where(e => e.MoodId == id).ToList();
+            List<ExpenseDto> ExpenseDtos = new List<ExpenseDto>();
+
+            Expenses.ForEach(e => ExpenseDtos.Add(new ExpenseDto()
+            {
+
+                ExpenseId = e.ExpenseId,
+                ExpenseName = e.ExpenseName,
+                Amount = e.Amount,
+                ExpenseDate = e.ExpenseDate,
+                Description = e.Description,
+                CardId = e.CardId,
+                CardName = e.Card.CardName,
+                CardType = e.Card.CardType,
+                CategoryId = e.CategoryId,
+                CategoryName = e.Category.CategoryName,
+                MoodId = e.MoodId,
+                MoodName = e.Mood.MoodName,
+                WeatherId = e.WeatherId,
+                WeatherName = e.Weather.WeatherName
+
+            }));
+            return ExpenseDtos;
+        }
+
+
+        /// <summary>
+        /// A list that returns all the Expenses for a selected Weather ID
+        /// </summary>
+        /// <returns>
+        /// All expenses in the system associated with the weather id
+        /// </returns>
+        /// <param name="id">
+        /// Represents the selected weather id
+        /// </param>
+        ///<example>
+        /// GET: api/ExpenseData/ListExpensesforWeather/2
+        /// CURL: curl https://localhost:44384/api/expensedata/listexpensesforweather/2
+        /// </example>
+
+
+        // List Expenses for Weather
+        [HttpGet]
+        [Route("api/ExpenseData/ListExpensesforWeather/{id}")]
+        public IEnumerable<ExpenseDto> ListExpensesforWeather(int id)
+        {
+            List<Expense> Expenses = db.Expenses.Where(e => e.WeatherId == id).ToList();
+            List<ExpenseDto> ExpenseDtos = new List<ExpenseDto>();
+
+            Expenses.ForEach(e => ExpenseDtos.Add(new ExpenseDto()
+            {
+
+                ExpenseId = e.ExpenseId,
+                ExpenseName = e.ExpenseName,
+                Amount = e.Amount,
+                ExpenseDate = e.ExpenseDate,
+                Description = e.Description,
+                CardId = e.CardId,
+                CardName = e.Card.CardName,
+                CardType = e.Card.CardType,
+                CategoryId = e.CategoryId,
+                CategoryName = e.Category.CategoryName,
+                MoodId = e.MoodId,
+                MoodName = e.Mood.MoodName,
+                WeatherId = e.WeatherId,
+                WeatherName = e.Weather.WeatherName
+
+            }));
+            return ExpenseDtos;
+        }
+
+
+
+
+
 
 
         /// <summary>
@@ -87,6 +279,7 @@ namespace MoodExpenseTracker.Controllers
                 ExpenseName = Expense.ExpenseName,
                 Amount = Expense.Amount,
                 ExpenseDate = Expense.ExpenseDate,
+                Description = Expense.Description,
                 CardId = Expense.Card.CardId,
                 CardName = Expense.Card.CardName,
                 CardType = Expense.Card.CardType,

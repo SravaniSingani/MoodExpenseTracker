@@ -1,0 +1,117 @@
+﻿@model MoodExpenseTracker.Models.ViewModels.DetailsCard
+
+@{
+    ViewBag.Title = "Details";
+}
+
+@{
+    //Total Expenses
+    decimal totalAmountSpent = Model.RelatedExpensestoCard.Sum(e => e.Amount);
+}
+
+<h2>Card Details</h2>
+<div style="margin-bottom:20px;">
+
+    <a href="/Card/List" class="btn btn-secondary btn-sm activ" role="button" aria-pressed="true">Back</a>
+</div>
+
+<div style="margin-bottom:20px;">
+    <a class="btn btn-primary btn-sm active" role="button" aria-pressed="true" href="/Card/Edit/@Model.SelectedCard.CardId">Update</a>
+    <a class="btn btn-secondary btn-sm active bg-danger" role="button" aria-pressed="true" href="/Card/DeleteConfirm/@Model.SelectedCard.CardId">Delete</a>
+
+</div>
+
+
+<div>
+    <h4> Name: @Model.SelectedCard.CardName </h4>
+    <p> Type: @Model.SelectedCard.CardType </p>
+</div>
+
+@if (Model.RelatedExpensestoCard.Any())
+{
+
+    <h4>All Expenses in @Model.SelectedCard.CardName</h4>
+
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Expense Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Mood</th>
+                    <th scope="col">Weather</th>
+                </tr>
+            </thead>
+            <tbody>
+
+
+
+                @foreach (var expense in Model.RelatedExpensestoCard)
+                {
+
+                    <tr>
+                        <th scope="row"></th>
+                        <td><a href="/Expense/Details/@expense.ExpenseId">@expense.ExpenseName</a></td>
+                        <td><a href="/Category/Details/@expense.CategoryId">@expense.CategoryName</a></td>
+                        <td>$@expense.Amount</td>
+                        <td> @expense.ExpenseDate</td>
+                        <td><a href="/Mood/Details/@expense.MoodId">@expense.MoodName</a></td>
+                        <td><a href="/Weather/Details/@expense.WeatherId">@expense.WeatherName</a></td>
+                        <td>
+                            <a href="/Expense/Edit/@expense.ExpenseId">Update</a>
+
+                        </td>
+                        <td>
+                            <a style="color:darkred;" href="/Expense/DeleteConfirm/@expense.ExpenseId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+else
+{
+    <p>No expenses associated with the card.</p>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h6> Total Amount Spent: $@totalAmountSpent </h6>
+    </div>
+</div>
+
+<div>
+    <form action="/Expense/New" method="get">
+        <button type="submit" class="btn btn-primary">Add Expense</button>
+    </form>
+</div>
+
+<style>
+    nav {
+        padding-bottom: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        text-align: center;
+        padding: 10px;
+    }
+
+        table.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    a {
+        text-decoration: none;
+    }
+
+    button {
+        margin: 10px;
+    }
+</style>

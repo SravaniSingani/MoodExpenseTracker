@@ -1,0 +1,58 @@
+﻿﻿﻿@model IEnumerable<MoodExpenseTracker.Models.CardDto>
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+<form action="/Card/Create" method="POST">
+
+    <div>
+        <label>Name: </label><input type="text" name="CardName" />
+    </div>
+    <div>
+        <label>Type: </label>
+        <select name="CardType">
+            <option value="Debit">Debit</option>
+            <option value="Credit">Credit</option>
+        </select>
+    </div>
+    <div>
+        <input type="submit" value="Add Card" />
+    </div>
+
+</form>
+
+<style>
+
+    label {
+        display: inline-block;
+    }
+
+    input, select {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.375rem;
+    }
+
+        input[type=submit] {
+            background-color: #2642de;
+            color: white;
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+</style>

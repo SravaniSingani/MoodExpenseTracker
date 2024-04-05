@@ -1,0 +1,18 @@
+﻿﻿@model IEnumerable<MoodExpenseTracker.Models.MoodDto>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List of Moods</h2>
+
+
+<div>
+    <ul class="list-group list-group-flush">
+        @foreach (MoodExpenseTracker.Models.MoodDto Mood in Model)
+        {
+            <li class="list-group-item"><a style="text-decoration: none; font-size:24px;" href="/Mood/Details/@Mood.MoodId">@Mood.MoodName</a></li>
+
+        }
+    </ul>
+</div>

@@ -1,0 +1,17 @@
+﻿<h2>List of Weathers</h2>
+
+<div style="margin-bottom:20px;">
+
+    <a href="/Weather/New" class="btn btn-primary btn-sm active" role="button" aria-pressed="true">Add Weather</a>
+</div>
+
+<div>
+    <ul class="list-group list-group-flush">
+        @foreach (MoodExpenseTracker.Models.WeatherDto Weather in Model)
+        {
+
+            <li class="list-group-item"><a style="text-decoration: none; font-size:24px;" href="/Weather/Details/@Weather.WeatherId">@Weather.WeatherName</a></li>
+
+        }
+    </ul>
+</div>

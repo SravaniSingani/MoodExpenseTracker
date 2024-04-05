@@ -1,0 +1,29 @@
+﻿﻿﻿@model IEnumerable<MoodExpenseTracker.Models.CardDto>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List of Cards</h2>
+
+<nav>
+    <a href="/Card/New" class="btn btn-primary" style="margin-bottom:20px;">Add Card</a>
+</nav>
+
+<div class="row">
+    @foreach (MoodExpenseTracker.Models.CardDto Card in Model)
+    {
+
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@Card.CardName</h5>
+                    <p class="card-text">Type: @Card.CardType</p>
+                    <a href="/Card/Details/@Card.CardId" class="btn btn-primary">See Expenses</a>
+                </div>
+            </div>
+        </div>
+
+
+    }
+</div>
