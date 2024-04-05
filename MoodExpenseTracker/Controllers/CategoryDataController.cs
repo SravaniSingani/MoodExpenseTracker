@@ -155,7 +155,7 @@ namespace MoodExpenseTracker.Controllers
         /// <example>
         /// POST: api/CategoryData/AddCategory
         /// FORM Data: Category JSON Object
-        /// CURL: curl -d @category.json -H "Content-Type:application/json" https://localhost:44384/api/CategoryData/AddCategory
+        /// CURL: curl -d @category.json -H "Content-Type:application/json" https://localhost:44307/api/CategoryData/AddCategory
         /// </example>
 
         // Add a Category
@@ -186,7 +186,7 @@ namespace MoodExpenseTracker.Controllers
         /// </returns>
         /// <example>
         /// POST: api/CategoryData/DeleteCategory/4
-        /// CURL: curl -d "" https://localhost:44384/api/CategoryData/DeleteCategory/4
+        /// CURL: curl -d "" https://localhost:44307/api/CategoryData/DeleteCategory/4
         /// </example>
 
         // Delete a Category

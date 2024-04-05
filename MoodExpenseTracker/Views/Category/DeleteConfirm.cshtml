@@ -1,0 +1,25 @@
+﻿﻿﻿@model MoodExpenseTracker.Models.CategoryDto
+
+@{
+    ViewBag.Title = "DeleteConfirm";
+}
+
+<h2>DeleteConfirm</h2>
+
+<nav>
+    <a href="/Category/Details/@Model.CategoryId">Cancel</a>
+</nav>
+
+<div>
+    <h4> Name: @Model.CategoryName </h4>
+</div>
+
+<h4>Are you sure that you want to delete this category? It'll delete all the expenses associated with it.'</h4>
+
+<div>
+    <form method="POST" action="/Category/Delete/@Model.CategoryId">
+        <button style=" display:block; margin: 0 auto; color:azure; background-color: darkred;">
+            Confirm Delete
+        </button>
+    </form>
+</div>

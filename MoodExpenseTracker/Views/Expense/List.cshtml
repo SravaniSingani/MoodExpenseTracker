@@ -1,0 +1,85 @@
+﻿﻿@model IEnumerable<MoodExpenseTracker.Models.ExpenseDto>
+
+@{
+    ViewBag.Title = "List";
+}
+
+@{
+    //Total Expenses
+    decimal totalAmountSpent = Model.Sum(e => e.Amount);
+}
+
+<h2>List of Expenses</h2>
+
+<div style="margin-bottom:20px;">
+
+    <a href="/Expense/New" class="btn btn-primary btn-sm active" role="button" aria-pressed="true">Add Expense</a>
+</div>
+
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Expense Name</th>
+                <th scope="col">Card</th>
+                <th scope="col">Category</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Date</th>
+                <th scope="col">Mood</th>
+                <th scope="col">Weather</th>
+            </tr>
+        </thead>
+        <tbody>
+
+
+
+            @foreach (MoodExpenseTracker.Models.ExpenseDto Expense in Model)
+            {
+                <tr>
+                    <th scope="row"></th>
+                    <td><a href="/Expense/Details/@Expense.ExpenseId">@Expense.ExpenseName</a></td>
+                    <td><a href="/Card/Details/@Expense.CardId">@Expense.CardName</a></td>
+                    <td><a href="/Category/Details/@Expense.CategoryId">@Expense.CategoryName</a></td>
+                    <td>$@Expense.Amount</td>
+                    <td> @Expense.ExpenseDate</td>
+                    <td><a href="/Mood/Details/@Expense.MoodId">@Expense.MoodName</a></td>
+                    <td><a href="/Weather/Details/@Expense.WeatherId">@Expense.WeatherName</a></td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h6> Total Amount Spent: $@totalAmountSpent </h6>
+    </div>
+</div>
+
+
+
+
+
+
+<style>
+    nav {
+        padding-bottom: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        text-align: center;
+        padding: 10px;
+    }
+
+        table.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    a {
+        text-decoration: none;
+    }
+</style>

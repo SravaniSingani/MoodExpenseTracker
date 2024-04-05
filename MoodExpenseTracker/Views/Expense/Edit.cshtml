@@ -1,0 +1,79 @@
+﻿﻿@model MoodExpenseTracker.Models.ExpenseDto
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Update</h2>
+<form action="@Url.Action("Update", "Expense", new { id = Model.ExpenseId })" method="POST">
+
+    @Html.HiddenFor(model => model.ExpenseId)
+
+    <div>
+        <label>Name: </label><input type="text" name="ExpenseName" value="@Model.ExpenseName" />
+    </div>
+    <div>
+        <label>Amount: </label><input type="text" name="Amount" value="@Model.Amount" />
+    </div>
+    <div>
+        <label>Date: </label><input type="datetime-local" name="ExpenseDate" value=" @Model.ExpenseDate.ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+    <div>
+        <label>Description: </label><input type="text" name="Description" value="@Model.Description" />
+    </div>
+    <div>
+        <label>Card: </label>
+        @Html.DropDownList("CardId", ViewBag.Cards as SelectList, "-- Select Card --", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>Category: </label>
+        @Html.DropDownList("CategoryId", ViewBag.Categories as SelectList, "-- Select Category --", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>Mood: </label>
+        @Html.DropDownList("MoodId", ViewBag.Moods as SelectList, "-- Select Mood --", new { @class = "form-control" })
+    </div>
+    <div>
+        <label>Weather: </label>
+        @Html.DropDownList("WeatherId", ViewBag.Weathers as SelectList, "-- Select Weather --", new { @class = "form-control" })
+    </div>
+
+    <div>
+        <input type="submit" value="Update Expense" />
+    </div>
+
+</form>
+
+<style>
+
+    label {
+        display: inline-block;
+    }
+
+    input {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.375rem;
+    }
+
+        input[type=submit] {
+            background-color: #2642de;
+            color: white;
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+</style>

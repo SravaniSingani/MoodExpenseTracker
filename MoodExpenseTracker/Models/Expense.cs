@@ -51,6 +51,7 @@ namespace MoodExpenseTracker.Models
         public string ExpenseName { get; set; }
         public decimal Amount { get; set; }
         public DateTime ExpenseDate { get; set; }
+        public string Description { get; set; }
         public int CardId { get; set; }
         public string CardName { get; set; }
         public string CardType { get; set; }
