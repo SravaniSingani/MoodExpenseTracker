@@ -32,11 +32,19 @@ namespace MoodExpenseTracker.Controllers
         // GET: api/CategoryData/ListCategories
         [HttpGet]
         [ResponseType(typeof(Category))]
-        [Route("api/CategoryData/ListCategories")]
-        public IHttpActionResult ListCategories()
+        [Route("api/CategoryData/ListCategories/{SearchKey?}")]
+        public IHttpActionResult ListCategories(string SearchKey = null)
         {
 
             List<Category> Categories = db.Categories.ToList();
+
+            //if SearchKey is Entered
+            if(!string.IsNullOrEmpty(SearchKey) )
+            {
+                Categories = db.Categories.Where
+                    (c => c.CategoryName.Contains(SearchKey)).ToList();
+            }
+
             List<CategoryDto> CategoryDtos = new List<CategoryDto>();
 
             Categories.ForEach(c => CategoryDtos.Add(new CategoryDto()

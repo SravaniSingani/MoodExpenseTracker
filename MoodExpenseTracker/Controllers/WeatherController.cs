@@ -60,13 +60,13 @@ namespace MoodExpenseTracker.Controllers
         /// </example>
 
         // GET: Weather/List
-        public ActionResult List()
+        public ActionResult List(string SearchKey = null)
         {
             GetApplicationCookie(); // get token credentials
 
             // Objective: Access Weather Data API and retrieve list of weathers
 
-            string url = "WeatherData/ListWeathers";
+            string url = "WeatherData/ListWeathers/" + SearchKey;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
             IEnumerable<WeatherDto> weathers = response.Content.ReadAsAsync<IEnumerable<WeatherDto>>().Result;

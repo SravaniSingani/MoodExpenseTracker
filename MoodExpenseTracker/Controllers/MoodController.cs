@@ -60,13 +60,13 @@ namespace MoodExpenseTracker.Controllers
         /// </example>
 
         // GET: Mood/List
-        public ActionResult List()
+        public ActionResult List(string SearchKey = null)
         {
             GetApplicationCookie(); // get token credentials
 
             // Objective: Access Mood Data API and retrieve list of moods
 
-            string url = "MoodData/ListMoods";
+            string url = "MoodData/ListMoods/" + SearchKey;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
             IEnumerable<MoodDto> moods = response.Content.ReadAsAsync<IEnumerable<MoodDto>>().Result;

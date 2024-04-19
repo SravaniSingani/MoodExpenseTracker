@@ -59,11 +59,11 @@ namespace MoodExpenseTracker.Controllers
         /// curl: curl https://localhost:44307/api/CategoryData/ListCategories
         /// </example>
         // GET: Category/List
-        public ActionResult List()
+        public ActionResult List(string SearchKey = null)
         {
             GetApplicationCookie(); // get token credentials
 
-            string url = "CategoryData/ListCategories";
+            string url = "CategoryData/ListCategories/" + SearchKey;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
             IEnumerable<CategoryDto> categories = response.Content.ReadAsAsync<IEnumerable<CategoryDto>>().Result;

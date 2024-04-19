@@ -31,10 +31,18 @@ namespace MoodExpenseTracker.Controllers
         // List Cards
         [HttpGet]
         [ResponseType(typeof(Card))]
-        [Route("api/CardData/ListCards")]
-        public IHttpActionResult ListCards()
+        [Route("api/CardData/ListCards/{SearchKey?}")]
+        public IHttpActionResult ListCards(string SearchKey = null)
         {
             List<Card> Cards = db.Cards.ToList();
+
+            //if SearchKey is entered
+            if (!string.IsNullOrEmpty(SearchKey))
+            {
+                Cards = db.Cards.Where
+                    (c => c.CardName.Contains(SearchKey)).ToList();
+            }
+
             List<CardDto> CardDtos = new List<CardDto>();
 
             Cards.ForEach(c => CardDtos.Add(new CardDto()

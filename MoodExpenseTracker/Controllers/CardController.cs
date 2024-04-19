@@ -60,11 +60,11 @@ namespace MoodExpenseTracker.Controllers
         /// curl: curl https://localhost:44384/api/CardData/ListCards
         /// </example>
         // GET: Card/List
-        public ActionResult List()
+        public ActionResult List(string SearchKey = null)
         {
             GetApplicationCookie(); // get token credentials
 
-            string url = "CardData/ListCards";
+            string url = "CardData/ListCards/" + SearchKey ;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
             IEnumerable<CardDto> cards = response.Content.ReadAsAsync<IEnumerable<CardDto>>().Result;

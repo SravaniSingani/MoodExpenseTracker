@@ -57,10 +57,10 @@ namespace MoodExpenseTracker.Controllers
         /// curl: curl https://localhost:44307/api/ExpenseData/ListExpenses
         /// </example>
         // GET: Expense/List
-        public ActionResult List()
+        public ActionResult List(string SearchKey = null)
         {
             GetApplicationCookie();
-            string url = "ListExpenses";
+            string url = "ListExpenses/" + SearchKey ;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
             IEnumerable<ExpenseDto> expenses = response.Content.ReadAsAsync<IEnumerable<ExpenseDto>>().Result;

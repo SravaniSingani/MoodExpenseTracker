@@ -32,11 +32,18 @@ namespace MoodExpenseTracker.Controllers
         // GET: api/MoodData/ListMoods
         [HttpGet]
         [ResponseType(typeof(Mood))]
-        [Route("api/MoodData/ListMoods")]
-        public IHttpActionResult ListMoods()
+        [Route("api/MoodData/ListMoods/{SearchKey?}")]
+        public IHttpActionResult ListMoods(string SearchKey = null)
         {
 
             List<Mood> Moods = db.Moods.ToList();
+            //if search key is entered
+            if(!string.IsNullOrEmpty(SearchKey))
+            {
+                Moods = db.Moods.Where
+                    (m => m.MoodName.Contains(SearchKey)).ToList();
+            }
+
             List<MoodDto> moodDtos = new List<MoodDto>();
 
             Moods.ForEach(c => moodDtos.Add(new MoodDto()
