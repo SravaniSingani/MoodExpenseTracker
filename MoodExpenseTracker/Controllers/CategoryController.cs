@@ -3,7 +3,6 @@ using MoodExpenseTracker.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
@@ -13,16 +12,41 @@ namespace MoodExpenseTracker.Controllers
 {
     public class CategoryController : Controller
     {
-
-
         private static readonly HttpClient client;
         private JavaScriptSerializer jss = new JavaScriptSerializer();
+
         static CategoryController()
         {
-            client = new HttpClient();
+            HttpClientHandler handler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = false,
+                // Cookies are manually set in RequestHeader
+                UseCookies = false
+            };
+
+            client = new HttpClient(handler);
             client.BaseAddress = new Uri("https://localhost:44307/api/");
         }
 
+        private void GetApplicationCookie()
+        {
+            string token = "";
+            // HTTP client is set up to be reused, otherwise, it will exhaust server resources.
+            // This is a bit dangerous because a previously authenticated cookie could be cached for
+            // a follow-up request from someone else. Reset cookies in HTTP client before grabbing a new one.
+            client.DefaultRequestHeaders.Remove("Cookie");
+            if (!User.Identity.IsAuthenticated) return;
+
+            HttpCookie cookie = HttpContext.Request.Cookies.Get(".AspNet.ApplicationCookie");
+            if (cookie != null) token = cookie.Value;
+
+            // Collect token as it is submitted to the controller
+            // Use it to pass along to the WebAPI.
+            Debug.WriteLine("Token Submitted is : " + token);
+            if (token != "") client.DefaultRequestHeaders.Add("Cookie", ".AspNet.ApplicationCookie=" + token);
+
+            return;
+        }
 
         /// <summary>
         /// Displays a list of categories in the system
@@ -37,26 +61,15 @@ namespace MoodExpenseTracker.Controllers
         // GET: Category/List
         public ActionResult List()
         {
+            GetApplicationCookie(); // get token credentials
 
-            // Objective: Access Category Data API and retrieve list of categories
-            // curl https://localhost:44307/api/CategoryData/ListCategories
-
-            // HttpClient client = new HttpClient() { };
             string url = "CategoryData/ListCategories";
             HttpResponseMessage response = client.GetAsync(url).Result;
 
-            //  Debug.WriteLine("The response is: ");
-            //  Debug.WriteLine(response.StatusCode);
-
             IEnumerable<CategoryDto> categories = response.Content.ReadAsAsync<IEnumerable<CategoryDto>>().Result;
-
-            // Debug.WriteLine("Number of categories: " + categories.Count());
 
             return View(categories);
         }
-
-
-
 
         /// <summary>
         /// Retreieves a selcted category from the list of categories
@@ -73,22 +86,15 @@ namespace MoodExpenseTracker.Controllers
         // GET: Category/Details/5
         public ActionResult Details(int id)
         {
-            // Objective: Access Category Data API and find a category by its id
-            // curl https://localhost:44384/api/CategoryData/FindCategory/{id}
+            GetApplicationCookie(); // get token credentials
+
             DetailsCategory ViewModel = new DetailsCategory();
 
-            // HttpClient client = new HttpClient() { };
             string url = "CategoryData/FindCategory/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
-            // Debug.WriteLine("The response is: ");
-            // Debug.WriteLine(response.StatusCode);
-
             CategoryDto SelectedCategory = response.Content.ReadAsAsync<CategoryDto>().Result;
 
-            // Debug.WriteLine("Category received: " + selectedcategory.CategoryName);
-
-            //Showcase List of Expenses associated with the category
             url = "expensedata/listexpensesforcategory/" + id;
 
             ViewModel.SelectedCategory = SelectedCategory;
@@ -99,26 +105,25 @@ namespace MoodExpenseTracker.Controllers
             return View(ViewModel);
         }
 
-
-
         /// <summary>
         /// Displays a message when it catches an error 
         /// </summary>
         /// <returns>
         /// Returns a view of Error Page
         /// </returns>
+
+        // GET: Category/Error
         public ActionResult Error()
         {
             return View();
         }
 
         // GET: Category/New
+        [Authorize]
         public ActionResult New()
         {
             return View();
         }
-
-
 
         /// <summary>
         /// Adds a category to the system
@@ -132,19 +137,14 @@ namespace MoodExpenseTracker.Controllers
 
         // POST: Category/Create
         [HttpPost]
+        [Authorize]
         public ActionResult Create(Category category)
         {
-            // Objective: Add a new category into the system using API
-            // curl: -d @category.json -H "Content-Type:application/json" https://localhost:44384/api/CategoryData/AddCategory
-
-            Debug.WriteLine("The category name craeted is: ");
-            Debug.WriteLine(category.CategoryName);
+            GetApplicationCookie(); // get token credentials
 
             string url = "CategoryData/AddCategory";
 
             string jsonpayload = jss.Serialize(category);
-
-            Debug.WriteLine(jsonpayload);
 
             HttpContent content = new StringContent(jsonpayload);
             content.Headers.ContentType.MediaType = "application/json";
@@ -157,16 +157,9 @@ namespace MoodExpenseTracker.Controllers
             }
             else
             {
-                Debug.WriteLine("Error updating category. Status code: " + response.StatusCode);
-                string errorMessage = response.Content.ReadAsStringAsync().Result;
-                Debug.WriteLine("Error message from server: " + errorMessage);
                 return RedirectToAction("Error");
-
             }
         }
-
-
-
 
         /// <summary>
         /// Gets the selected category to update in the system
@@ -176,14 +169,16 @@ namespace MoodExpenseTracker.Controllers
         /// Returns a view with the selected category existing details.
         /// </returns>
         // GET: Category/Edit/5
+        [Authorize]
         public ActionResult Edit(int id)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "CategoryData/FindCategory/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
             CategoryDto selectedcategory = response.Content.ReadAsAsync<CategoryDto>().Result;
             return View(selectedcategory);
         }
-
 
         /// <summary>
         /// Updates an existing category in the system
@@ -193,32 +188,30 @@ namespace MoodExpenseTracker.Controllers
         /// <returns>
         /// Returns to a view to the details of the selected category
         /// </returns>
-        // POST: Category/Edit/5
+
+        // POST: Category/Update/5
         [HttpPost]
+        [Authorize]
         public ActionResult Update(int id, Category category)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "CategoryData/UpdateCategory/" + id;
             string jsonpayload = jss.Serialize(category);
 
             HttpContent content = new StringContent(jsonpayload);
             content.Headers.ContentType.MediaType = "application/json";
             HttpResponseMessage response = client.PostAsync(url, content).Result;
-            Debug.WriteLine(content);
-            Debug.WriteLine(jsonpayload);
+
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("List");
             }
             else
             {
-                Debug.WriteLine("Error updating category. Status code: " + response.StatusCode);
-                string errorMessage = response.Content.ReadAsStringAsync().Result;
-                Debug.WriteLine("Error message from server: " + errorMessage);
                 return RedirectToAction("Error");
-
             }
         }
-
 
         /// <summary>
         /// Displays a message to confirm the delete process of a category from the system
@@ -229,14 +222,16 @@ namespace MoodExpenseTracker.Controllers
         /// </returns>
 
         // GET: Category/DeleteConfirm/5
+        [Authorize]
         public ActionResult DeleteConfirm(int id)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "CategoryData/FindCategory/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
             CategoryDto selectedcategory = response.Content.ReadAsAsync<CategoryDto>().Result;
             return View(selectedcategory);
         }
-
 
         /// <summary>
         /// Removes a category from the system
@@ -249,13 +244,16 @@ namespace MoodExpenseTracker.Controllers
 
         // POST: Category/Delete/5
         [HttpPost]
+        [Authorize]
         public ActionResult Delete(int id, FormCollection collection)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "CategoryData/DeleteCategory/" + id;
             HttpContent content = new StringContent("");
             content.Headers.ContentType.MediaType = "application/json";
             HttpResponseMessage response = client.PostAsync(url, content).Result;
-            Debug.WriteLine(content);
+
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("List");
@@ -264,9 +262,6 @@ namespace MoodExpenseTracker.Controllers
             {
                 return RedirectToAction("Error");
             }
-
-
         }
-
     }
 }
