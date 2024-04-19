@@ -15,11 +15,35 @@ namespace MoodExpenseTracker.Controllers
 
         private static readonly HttpClient client;
         private JavaScriptSerializer jss = new JavaScriptSerializer();
+
+
         static ExpenseController()
         {
-            client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:44307/api/ExpenseData/");
+            HttpClientHandler handler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = false,
+                //cookies are manually set in RequestHeader
+                UseCookies = false
+            };
 
+            client = new HttpClient(handler);
+            client.BaseAddress = new Uri("https://localhost:44307/api/ExpenseData/");
+        }
+        
+        // Gets the authentication cookie for the expense controller.
+    
+        private void GetApplicationCookie()
+        {
+            string token = "";
+            client.DefaultRequestHeaders.Remove("Cookie");
+            if (!User.Identity.IsAuthenticated) return;
+
+            HttpCookie cookie = System.Web.HttpContext.Current.Request.Cookies.Get(".AspNet.ApplicationCookie");
+            if (cookie != null) token = cookie.Value;
+
+            if (token != "") client.DefaultRequestHeaders.Add("Cookie", ".AspNet.ApplicationCookie=" + token);
+
+            return;
         }
 
         /// <summary>
@@ -32,25 +56,17 @@ namespace MoodExpenseTracker.Controllers
         /// GET: Expense/List
         /// curl: curl https://localhost:44307/api/ExpenseData/ListExpenses
         /// </example>
-
+        // GET: Expense/List
         public ActionResult List()
         {
-            // Objective: Access Expense Data API and retrieve list of expenses
-
-            // HttpClient client = new HttpClient() { };
+            GetApplicationCookie();
             string url = "ListExpenses";
             HttpResponseMessage response = client.GetAsync(url).Result;
 
-            //  Debug.WriteLine("The response is: ");
-            //  Debug.WriteLine(response.StatusCode);
-
             IEnumerable<ExpenseDto> expenses = response.Content.ReadAsAsync<IEnumerable<ExpenseDto>>().Result;
-
-            // Debug.WriteLine("Number of expenses: " + expenses.Count());
 
             return View(expenses);
         }
-
 
         /// <summary>
         /// Retreieves a selcted expense from the list of expenses
@@ -63,27 +79,17 @@ namespace MoodExpenseTracker.Controllers
         ///  GET: Expense/Details/5
         ///  curl https://localhost:44307/api/ExpenseData/FindExpense/{id}
         /// </example>
-
+        // GET: Expense/Details/5
         public ActionResult Details(int id)
         {
-
-            // Objective: Access Expense Data API and find an expense by its id
-
-
-            // HttpClient client = new HttpClient() { };
+            GetApplicationCookie();
             string url = "FindExpense/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
-            // Debug.WriteLine("The response is: ");
-            // Debug.WriteLine(response.StatusCode);
-
             ExpenseDto selectedexpense = response.Content.ReadAsAsync<ExpenseDto>().Result;
 
-            // Debug.WriteLine("Expense received: " + selectedexpense.ExpenseName);
             return View(selectedexpense);
         }
-
-
 
         /// <summary>
         /// Displays a message when it catches an error 
@@ -96,11 +102,11 @@ namespace MoodExpenseTracker.Controllers
             return View();
         }
 
-
-
-        // GET: Expense/Create
+        // GET: Expense/New
+        [Authorize]
         public ActionResult New()
         {
+            GetApplicationCookie();
             var cardList = ListofCards();
             var categoryList = ListofCategories();
             var moodList = ListofMoods();
@@ -114,8 +120,6 @@ namespace MoodExpenseTracker.Controllers
             return View();
         }
 
-
-
         /// <summary>
         /// Adds an expense to the system
         /// </summary>
@@ -128,19 +132,13 @@ namespace MoodExpenseTracker.Controllers
 
         // POST: Expense/Create
         [HttpPost]
+        [Authorize]
         public ActionResult Create(Expense expense)
         {
-            // Objective: Add a new expense into the system using API
-            // curl: -d @expense.json -H "Content-Type:application/json" https://localhost:44384/api/ExpenseData/AddExpense
-
-            Debug.WriteLine("The expense name craeted is: ");
-            Debug.WriteLine(expense.ExpenseName);
-
+            GetApplicationCookie();
             string url = "AddExpense";
 
             string jsonpayload = jss.Serialize(expense);
-
-            Debug.WriteLine(jsonpayload);
 
             HttpContent content = new StringContent(jsonpayload);
             content.Headers.ContentType.MediaType = "application/json";
@@ -157,36 +155,6 @@ namespace MoodExpenseTracker.Controllers
             }
         }
 
-        private IEnumerable<CardDto> ListofCards()
-        {
-            string url = "https://localhost:44307/api/CardData/ListCards";
-            HttpResponseMessage response = client.GetAsync(url).Result;
-            return response.Content.ReadAsAsync<IEnumerable<CardDto>>().Result;
-        }
-
-        private IEnumerable<CategoryDto> ListofCategories()
-        {
-            string url = "https://localhost:44307/api/CategoryData/ListCategories";
-            HttpResponseMessage response = client.GetAsync(url).Result;
-            return response.Content.ReadAsAsync<IEnumerable<CategoryDto>>().Result;
-        }
-
-        private IEnumerable<MoodDto> ListofMoods()
-        {
-            string url = "https://localhost:44307/api/MoodData/ListMoods";
-            HttpResponseMessage response = client.GetAsync(url).Result;
-            return response.Content.ReadAsAsync<IEnumerable<MoodDto>>().Result;
-        }
-
-        private IEnumerable<WeatherDto> ListofWeathers()
-        {
-            string url = "https://localhost:44307/api/WeatherData/ListWeathers";
-            HttpResponseMessage response = client.GetAsync(url).Result;
-            return response.Content.ReadAsAsync<IEnumerable<WeatherDto>>().Result;
-        }
-
-
-
 
         /// <summary>
         /// Gets the selected expense to update in the system
@@ -195,16 +163,16 @@ namespace MoodExpenseTracker.Controllers
         /// <returns>
         /// Returns a view with the selected expense existing details.
         /// </returns>
-
         // GET: Expense/Edit/5
+
+        [Authorize]
         public ActionResult Edit(int id)
         {
+            GetApplicationCookie();
             string url = "FindExpense/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
             ExpenseDto selectedexpense = response.Content.ReadAsAsync<ExpenseDto>().Result;
 
-
-            //List of cards and categories
             var cardList = ListofCards();
             var categoryList = ListofCategories();
             var moodList = ListofMoods();
@@ -250,34 +218,29 @@ namespace MoodExpenseTracker.Controllers
         /// <returns>
         /// Returns to a view to the details of the selected expense
         /// </returns>
-
         // POST: Expense/Update/5
         [HttpPost]
+        [Authorize]
         public ActionResult Update(int id, Expense expense)
         {
+            GetApplicationCookie();
             string url = "UpdateExpense/" + id;
             string jsonpayload = jss.Serialize(expense);
 
             HttpContent content = new StringContent(jsonpayload);
             content.Headers.ContentType.MediaType = "application/json";
             HttpResponseMessage response = client.PostAsync(url, content).Result;
-            Debug.WriteLine(content);
-            Debug.WriteLine(jsonpayload);
+
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Details/" + id);
             }
             else
             {
-                Debug.WriteLine("Error updating expense. Status code: " + response.StatusCode);
                 string errorMessage = response.Content.ReadAsStringAsync().Result;
-                Debug.WriteLine("Error message from server: " + errorMessage);
                 return RedirectToAction("Error");
-
             }
         }
-
-
 
         /// <summary>
         /// Displays a message to confirm the delete process of an expense from the system
@@ -288,8 +251,10 @@ namespace MoodExpenseTracker.Controllers
         /// </returns>
 
         // GET: Expense/Delete/5
+        [Authorize]
         public ActionResult DeleteConfirm(int id)
         {
+            GetApplicationCookie();
             string url = "FindExpense/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
             ExpenseDto selectedexpense = response.Content.ReadAsAsync<ExpenseDto>().Result;
@@ -307,13 +272,15 @@ namespace MoodExpenseTracker.Controllers
         /// </returns>
         // POST: Expense/Delete/5
         [HttpPost]
+        [Authorize]
         public ActionResult Delete(int id, FormCollection collection)
         {
+            GetApplicationCookie();
             string url = "DeleteExpense/" + id;
             HttpContent content = new StringContent("");
             content.Headers.ContentType.MediaType = "application/json";
             HttpResponseMessage response = client.PostAsync(url, content).Result;
-            Debug.WriteLine(content);
+
             if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("List");
@@ -324,7 +291,39 @@ namespace MoodExpenseTracker.Controllers
             }
         }
 
+        //List Expenses for Card
 
+        private IEnumerable<CardDto> ListofCards()
+        {
+            string url = "https://localhost:44307/api/CardData/ListCards";
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            return response.Content.ReadAsAsync<IEnumerable<CardDto>>().Result;
+        }
+
+        //List Expenses for Category
+        private IEnumerable<CategoryDto> ListofCategories()
+        {
+            string url = "https://localhost:44307/api/CategoryData/ListCategories";
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            return response.Content.ReadAsAsync<IEnumerable<CategoryDto>>().Result;
+        }
+
+        //List Expenses for Mood
+        private IEnumerable<MoodDto> ListofMoods()
+        {
+            string url = "https://localhost:44307/api/MoodData/ListMoods";
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            return response.Content.ReadAsAsync<IEnumerable<MoodDto>>().Result;
+        }
+
+        //List Expenses for Weathers
+
+        private IEnumerable<WeatherDto> ListofWeathers()
+        {
+            string url = "https://localhost:44307/api/WeatherData/ListWeathers";
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            return response.Content.ReadAsAsync<IEnumerable<WeatherDto>>().Result;
+        }
 
     }
 }

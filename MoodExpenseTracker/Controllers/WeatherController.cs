@@ -3,7 +3,6 @@ using MoodExpenseTracker.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
@@ -13,48 +12,67 @@ namespace MoodExpenseTracker.Controllers
 {
     public class WeatherController : Controller
     {
+        private static readonly HttpClient client;
+        private JavaScriptSerializer jss = new JavaScriptSerializer();
 
-            private static readonly HttpClient client;
-            private JavaScriptSerializer jss = new JavaScriptSerializer();
-            static WeatherController()
+        static WeatherController()
+        {
+            HttpClientHandler handler = new HttpClientHandler()
             {
-                client = new HttpClient();
-                client.BaseAddress = new Uri("https://localhost:44307/api/");
-            }
+                AllowAutoRedirect = false,
+                // Cookies are manually set in RequestHeader
+                UseCookies = false
+            };
 
+            client = new HttpClient(handler);
+            client.BaseAddress = new Uri("https://localhost:44307/api/");
+        }
 
-            /// <summary>
-            /// Displays a list of weathers in the system
-            /// </summary>
-            /// <returns>
-            /// Returns a view for Weather List
-            /// </returns>
-            /// <example>
-            /// GET: Weather/List
-            /// curl: curl https://localhost:44307/api/WeatherData/ListWeathers
-            /// </example>
-            // GET: Weather/List
-            public ActionResult List()
-            {
+        private void GetApplicationCookie()
+        {
+            string token = "";
+            // HTTP client is set up to be reused, otherwise, it will exhaust server resources.
+            // This is a bit dangerous because a previously authenticated cookie could be cached for
+            // a follow-up request from someone else. Reset cookies in HTTP client before grabbing a new one.
+            client.DefaultRequestHeaders.Remove("Cookie");
+            if (!User.Identity.IsAuthenticated) return;
 
-                // Objective: Access Weather Data API and retrieve list of weathers
-                // curl https://localhost:44307/api/WeatherData/ListWeathers
+            HttpCookie cookie = HttpContext.Request.Cookies.Get(".AspNet.ApplicationCookie");
+            if (cookie != null) token = cookie.Value;
 
-                // HttpClient client = new HttpClient() { };
-                string url = "WeatherData/ListWeathers";
-                HttpResponseMessage response = client.GetAsync(url).Result;
+            // Collect token as it is submitted to the controller
+            // Use it to pass along to the WebAPI.
+            Debug.WriteLine("Token Submitted is : " + token);
+            if (token != "") client.DefaultRequestHeaders.Add("Cookie", ".AspNet.ApplicationCookie=" + token);
 
-                //  Debug.WriteLine("The response is: ");
-                //  Debug.WriteLine(response.StatusCode);
+            return;
+        }
 
-                IEnumerable<WeatherDto> weathers = response.Content.ReadAsAsync<IEnumerable<WeatherDto>>().Result;
+        /// <summary>
+        /// Displays a list of weathers in the system
+        /// </summary>
+        /// <returns>
+        /// Returns a view for Weather List
+        /// </returns>
+        /// <example>
+        /// GET: Weather/List
+        /// curl: curl https://localhost:44307/api/WeatherData/ListWeathers
+        /// </example>
 
-                // Debug.WriteLine("Number of weathers: " + weathers.Count());
+        // GET: Weather/List
+        public ActionResult List()
+        {
+            GetApplicationCookie(); // get token credentials
 
-                return View(weathers);
-            }
+            // Objective: Access Weather Data API and retrieve list of weathers
 
+            string url = "WeatherData/ListWeathers";
+            HttpResponseMessage response = client.GetAsync(url).Result;
 
+            IEnumerable<WeatherDto> weathers = response.Content.ReadAsAsync<IEnumerable<WeatherDto>>().Result;
+            // Debug.WriteLine("Number of weathers: " + weathers.Count());
+            return View(weathers);
+        }
 
         /// <summary>
         /// Retreieves a selcted weather from the list of weathers
@@ -71,20 +89,16 @@ namespace MoodExpenseTracker.Controllers
         // GET: Weather/Details/2
         public ActionResult Details(int id)
         {
-            // Objective: Access Weather Data API and find a weather by its id
-            // curl https://localhost:44307/api/WeatherData/FindWeather/{id}
-            DetailsWeather ViewModel = new DetailsWeather();
+            GetApplicationCookie(); // get token credentials
 
-            // HttpClient client = new HttpClient() { };
+
+            DetailsWeather ViewModel = new DetailsWeather();
+            // Objective: Access Weather Data API and find a weather by its id
+
             string url = "WeatherData/FindWeather/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
 
-            // Debug.WriteLine("The response is: ");
-            // Debug.WriteLine(response.StatusCode);
-
             WeatherDto SelectedWeather = response.Content.ReadAsAsync<WeatherDto>().Result;
-
-            // Debug.WriteLine("Weather received: " + SelectedWeather.WeatherName);
 
             //Showcase List of Expenses associated with the Weather
             url = "expensedata/listexpensesforweather/" + id;
@@ -97,24 +111,25 @@ namespace MoodExpenseTracker.Controllers
             return View(ViewModel);
         }
 
-
         /// <summary>
         /// Displays a message when it catches an error 
         /// </summary>
         /// <returns>
         /// Returns a view of Error Page
         /// </returns>
+
+        // GET: Weather/Error
         public ActionResult Error()
         {
             return View();
         }
 
         // GET: Weather/New
+        [Authorize]
         public ActionResult New()
         {
             return View();
         }
-
 
 
         /// <summary>
@@ -129,19 +144,14 @@ namespace MoodExpenseTracker.Controllers
 
         // POST: Weather/Create
         [HttpPost]
+        [Authorize]
         public ActionResult Create(Weather weather)
         {
-            // Objective: Add a new Weather into the system using API
-            // curl: -d @weather.json -H "Content-Type:application/json" https://localhost:44307/api/WeatherData/AddWeather
-
-            Debug.WriteLine("The weather name craeted is: ");
-            Debug.WriteLine(weather.WeatherName);
+            GetApplicationCookie(); // get token credentials
 
             string url = "WeatherData/AddWeather";
-            
-            string jsonpayload = jss.Serialize(weather);
 
-            Debug.WriteLine(jsonpayload);
+            string jsonpayload = jss.Serialize(weather);
 
             HttpContent content = new StringContent(jsonpayload);
             content.Headers.ContentType.MediaType = "application/json";
@@ -154,14 +164,9 @@ namespace MoodExpenseTracker.Controllers
             }
             else
             {
-                Debug.WriteLine("Error updating Weather. Status code: " + response.StatusCode);
-                string errorMessage = response.Content.ReadAsStringAsync().Result;
-                Debug.WriteLine("Error message from server: " + errorMessage);
                 return RedirectToAction("Error");
-
             }
         }
-
 
         /// <summary>
         /// Gets the selected weather to update in the system
@@ -170,9 +175,13 @@ namespace MoodExpenseTracker.Controllers
         /// <returns>
         /// Returns a view with the selected weather existing details.
         /// </returns>
-        // GET: Weather/Edit/5
+
+        // GET: Weather/Edit/2
+        [Authorize]
         public ActionResult Edit(int id)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "WeatherData/FindWeather/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
             WeatherDto selectedweather = response.Content.ReadAsAsync<WeatherDto>().Result;
@@ -187,10 +196,13 @@ namespace MoodExpenseTracker.Controllers
         /// <returns>
         /// Returns to a view to the details of the selected weather
         /// </returns>
-        // POST: Weather/Edit/2
+        // POST: Weather/Update/2
         [HttpPost]
+        [Authorize]
         public ActionResult Update(int id, Weather weather)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "WeatherData/UpdateWeather/" + id;
             string jsonpayload = jss.Serialize(weather);
 
@@ -205,17 +217,9 @@ namespace MoodExpenseTracker.Controllers
             }
             else
             {
-                Debug.WriteLine("Error updating Weather. Status code: " + response.StatusCode);
-                string errorMessage = response.Content.ReadAsStringAsync().Result;
-                Debug.WriteLine("Error message from server: " + errorMessage);
                 return RedirectToAction("Error");
-
             }
         }
-
-
-
-
 
         /// <summary>
         /// Displays a message to confirm the delete process of a weather from the system
@@ -225,15 +229,17 @@ namespace MoodExpenseTracker.Controllers
         /// DeleteConfirm View 
         /// </returns>
 
-        // GET: Weather/DeleteConfirm/5
+        // GET: Weather/DeleteConfirm/2
+        [Authorize]
         public ActionResult DeleteConfirm(int id)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "WeatherData/FindWeather/" + id;
             HttpResponseMessage response = client.GetAsync(url).Result;
             WeatherDto selectedweather = response.Content.ReadAsAsync<WeatherDto>().Result;
             return View(selectedweather);
         }
-
 
         /// <summary>
         /// Removes a weather from the system
@@ -244,10 +250,13 @@ namespace MoodExpenseTracker.Controllers
         /// Deletes the selected weather and returns to the Weather list
         /// </returns>
 
-        // POST: Weather/Delete/5
+        // POST: Weather/Delete/2
         [HttpPost]
+        [Authorize]
         public ActionResult Delete(int id, FormCollection collection)
         {
+            GetApplicationCookie(); // get token credentials
+
             string url = "WeatherData/DeleteWeather/" + id;
             HttpContent content = new StringContent("");
             content.Headers.ContentType.MediaType = "application/json";
@@ -262,6 +271,5 @@ namespace MoodExpenseTracker.Controllers
                 return RedirectToAction("Error");
             }
         }
-
     }
 }
