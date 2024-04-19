@@ -6,7 +6,7 @@ The Expense Tracking System is a comprehensive platform designed to help users m
 
 ## Collaborators
 - Sravani Singani - [Expense Tracking System](https://github.com/SravaniSingani/ExpenseTrackerSystem2-SravaniSingani)
-- Ameesa Bajwa - [Mood and Weather Tracker]()
+- Ameesa Bajwa - [Mood and Weather Tracker](https://github.com/abajwa90/MoodDiaryProjectW2024)
 
 ## Technologies Used
 
