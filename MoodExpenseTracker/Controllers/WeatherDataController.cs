@@ -34,11 +34,18 @@ namespace MoodExpenseTracker.Controllers
         // GET: api/WeatherData/ListWeathers
         [HttpGet]
         [ResponseType(typeof(Weather))]
-        [Route("api/WeatherData/ListWeathers")]
-        public IHttpActionResult ListWeathers()
+        [Route("api/WeatherData/ListWeathers/{SearchKey?}")]
+        public IHttpActionResult ListWeathers(string SearchKey = null)
         {
 
             List<Weather> weathers = db.Weathers.ToList();
+            //if SearchKey is entered
+            if(!string.IsNullOrEmpty(SearchKey) )
+            {
+                weathers = db.Weathers.Where
+                    (w => w.WeatherName.Contains(SearchKey)).ToList();
+            }
+
             List<WeatherDto> weatherDtos = new List<WeatherDto>();
 
             weathers.ForEach(c => weatherDtos.Add(new WeatherDto()

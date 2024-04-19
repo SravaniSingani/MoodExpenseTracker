@@ -29,10 +29,18 @@ namespace MoodExpenseTracker.Controllers
 
         // List Expenses
         [HttpGet]
-        [Route("api/ExpenseData/ListExpenses")]
-        public IEnumerable<ExpenseDto> ListExpenses()
+        [Route("api/ExpenseData/ListExpenses/{SearchKey?}")]
+        public IEnumerable<ExpenseDto> ListExpenses(string SearchKey = null)
         {
             List<Expense> Expenses = db.Expenses.ToList();
+
+            //if search key is entered
+            if(!string.IsNullOrEmpty(SearchKey))
+            {
+                Expenses = db.Expenses.Where
+                    ( e => e.ExpenseName.Contains(SearchKey)).ToList();
+            }
+
             List<ExpenseDto> ExpenseDtos = new List<ExpenseDto>();
 
             Expenses.ForEach(e => ExpenseDtos.Add(new ExpenseDto()
