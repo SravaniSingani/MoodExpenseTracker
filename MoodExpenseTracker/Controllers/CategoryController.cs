@@ -20,7 +20,7 @@ namespace MoodExpenseTracker.Controllers
             HttpClientHandler handler = new HttpClientHandler()
             {
                 AllowAutoRedirect = false,
-                // Cookies are manually set in RequestHeader
+                // Cookies are manually set 
                 UseCookies = false
             };
 
@@ -31,9 +31,8 @@ namespace MoodExpenseTracker.Controllers
         private void GetApplicationCookie()
         {
             string token = "";
-            // HTTP client is set up to be reused, otherwise, it will exhaust server resources.
-            // This is a bit dangerous because a previously authenticated cookie could be cached for
-            // a follow-up request from someone else. Reset cookies in HTTP client before grabbing a new one.
+            // HTTP client is set up to be reused.
+         
             client.DefaultRequestHeaders.Remove("Cookie");
             if (!User.Identity.IsAuthenticated) return;
 
@@ -41,7 +40,7 @@ namespace MoodExpenseTracker.Controllers
             if (cookie != null) token = cookie.Value;
 
             // Collect token as it is submitted to the controller
-            // Use it to pass along to the WebAPI.
+            // Use to pass to the WebAPI.
             Debug.WriteLine("Token Submitted is : " + token);
             if (token != "") client.DefaultRequestHeaders.Add("Cookie", ".AspNet.ApplicationCookie=" + token);
 
