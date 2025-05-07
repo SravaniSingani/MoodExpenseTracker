@@ -8,7 +8,7 @@ The Expense Tracking System is a comprehensive platform designed to help users m
 - Sravani Singani - [Expense Tracking System](https://github.com/SravaniSingani/ExpenseTrackerSystem2-SravaniSingani)
 - Ameesa Bajwa - [Mood Diary Project](https://github.com/abajwa90/MoodDiaryProjectW2024)
 
-## Technologies Used
+## Tech Stack
 
 ##### Backend Technologies
 
